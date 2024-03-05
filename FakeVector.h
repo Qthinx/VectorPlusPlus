@@ -2,9 +2,6 @@
 
 #include <iostream>
 #include <random>
-#include <string>
-#include <cstring>
-
 
 
 namespace qts
@@ -141,18 +138,14 @@ namespace qts
     template<typename T>
     void FakeVector<T>::push_back(T val)
     {
-        rows += 1;
-        T* temp = new T[rows]{ };
-        temp[rows] = val;
-        rows -= 1;
-        swap(arr, temp, rows);
+        rows++;
+        T* temp = new T[size()]{ };
+        std::swap(temp, arr);
         delete[] arr;
-        arr = nullptr;
-        rows += 1;
-        arr = new T[rows]{ };
-        swap(temp, arr, rows);
+        arr = new T[size()]{ };
+        std::swap(temp, arr);
         delete[] temp;
-        temp = nullptr;
+        arr[real_size()] = val;
     }
 
     template<typename T>
