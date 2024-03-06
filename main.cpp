@@ -13,6 +13,5 @@ int main(int argc, char* argv[])
 	std::cout << "\nFakeVector::a\n" << a << std::endl;
 	a.push_back(5);
 	std::cout << "after push_back():\nFakeVector::a\n" << a << std::endl;
-
 	return 0;
 }

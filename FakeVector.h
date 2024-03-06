@@ -5,8 +5,7 @@
 
 
 namespace qts
-{
-    
+{  
     template<typename T>
     class FakeVector
     {
@@ -16,12 +15,12 @@ namespace qts
         size_t capacity = 0;
 
     public:
-        // Конструктори та деструктор
+        // Constructors and destructor
         FakeVector(size_t rows);
         FakeVector(const FakeVector<T>& other);
         ~FakeVector();
 
-        // Методи-члени
+        // Member methods
         void sort();
         void reverse();
         void push_back(T val);
@@ -29,55 +28,51 @@ namespace qts
         void insert(T val, T index);
         T randint(T a, T b) const;
         void clear() { arr = {}; };
-        // Отримання значення за індексом з обробкою виходу за межі
+        // Getting a value by index with handling out-of-bounds
         T at(T index);
-        // Отримання першого елемента вектора
+        // Getting the first element of the vector
         T front() const { return arr[0]; };
         T choice() { return arr[randint(0, rows - 1)]; };
-        // Отримання останнього елемента вектора
-        T back() const { return  arr[rows - 1]; };
+        // Getting the last element of the vector
+        T back() const { arr[rows - 1]; };
         size_t size() const { return rows; };
         size_t real_size() const { return rows - 1; };
         void resize(size_t new_size) { rows = (new_size < 1 ? 1 : new_size); };
 
-
-        // Оператори
+        // Operators
         T& operator[](const T index) const;
-        // Перезавантажені логічні оператори використовуються переважно для-
-        // сортуваннь,  юзер теж може це юзати для кастомних сортувань
+        // Overloaded logical operators are primarily used for sorting, and the user can use them for custom sorting
         bool operator<(const FakeVector<T>& other) const { return (arr < other.arr) ? true : false; };
         bool operator>(const FakeVector<T>& other) const { return (arr > other.arr) ? true : false; };
         bool operator<=(const FakeVector<T>& other) const { return (arr <= other.arr) ? true : false; };
         bool operator>=(const FakeVector<T>& other) const { return (arr >= other.arr) ? true : false; };
         bool operator==(const FakeVector<T>& other) const { return (arr == other.arr) ? true : false; };
         bool operator!=(const FakeVector<T>& other) const { return (arr != other.arr) ? true : false; };
-        // Перезавантажені математичні оператори використовуються переважно для-
-        // сортуваннь, юзер теж може це юзати для кастомних сортувань
+        // Overloaded mathematical operators are primarily used for fast sorting, and the user can use them for custom sorting
         FakeVector<T>& operator+(const FakeVector<T>& other);
         FakeVector<T>& operator-(const FakeVector<T>& other);
-        // Перезавантажені математичні оператори використовуються переважно для реалізації швидких-
-        // сортуваннь, юзер теж може це юзати для кастомних сортувань
+        // Overloaded mathematical operators are primarily used for fast sorting, and the user can use them for custom sorting
         FakeVector<T>& operator=(const FakeVector<T>& other);
         FakeVector<T>& operator+=(const FakeVector<T>& other);
-        // Перезавантажений амперсант використовуюється для получення посилання на реальний массив
+        // Overloaded ampersand is used to get a reference to the real array
         T* operator&() { return arr; }
-        // Дружня функція
-        // Перезавантажений std::cout 
+        // Friend function
+        // Overloaded std::cout 
         template <typename T1> friend std::ostream& operator<<(std::ostream&, const FakeVector<T1>&);
 
     private:
-        // Методи-утиліти
-        void swap(const T* copyFrom, T* copyIn, T copyFrom_EndIndex, T copyFrom_StartIndex = 0);
-        void swap(FakeVector<T>& copyFrom, T* copyIn, T copyFrom_EndIndex, T copyFrom_StartIndex = 0);
-        void swap(const T* copyFrom, FakeVector<T>& copyIn, T copyFrom_EndIndex, T copyFrom_StartIndex = 0);
-                                               
+        // Utility methods
+        void smartSwap(const T* copyFrom, T* copyIn, T copyFrom_EndIndex, T copyFrom_StartIndex = 0);
+        void smartSwap(FakeVector<T>& copyFrom, T* copyIn, T copyFrom_EndIndex, T copyFrom_StartIndex = 0);
+        void smartSwap(const T* copyFrom, FakeVector<T>& copyIn, T copyFrom_EndIndex, T copyFrom_StartIndex = 0);
     };
+
 }
 
 
 namespace qts
 {
-    // Конструктор з випадковими значеннями вказаної довжини
+    // Constructor with random values of a specified length
     template<typename T>
     FakeVector<T>::FakeVector(size_t rows)
     {
@@ -85,7 +80,7 @@ namespace qts
         {
             this->rows = 1;
             this->arr = new T[this->rows]{};
-            std::cout << "WARNING: zero rows in Array!\nRows size change to: "
+            std::cout << "WARNING: zero rows in Array!\nRows size changed to: "
                 << this->rows << std::endl;
         }
         else if (rows >= 1)
@@ -95,16 +90,15 @@ namespace qts
         }
     }
 
-    // Конструктор копіювання
+    // Copy constructor
     template<typename T>
     FakeVector<T>::FakeVector(const FakeVector<T>& other) : rows(other.rows)
     {
         arr = new T[rows];
-        swap(other.arr, arr, rows);
-        
+        smartSwap(other.arr, arr, rows);
     }
 
-    // Деструктор
+    // Destructor
     template<typename T>
     FakeVector<T>::~FakeVector()
     {
@@ -131,21 +125,25 @@ namespace qts
     void FakeVector<T>::reverse()
     {
         for (size_t i = 0, j = real_size(); i < j; i++, j--)
-            std::swap(arr[i], arr[j]); 
+            std::swap(arr[i], arr[j]);
     }
 
-    // Додавання елементу в кінець вектора
+    // Adding an element to the end of the vector
     template<typename T>
     void FakeVector<T>::push_back(T val)
     {
-        rows++;
-        T* temp = new T[size()]{ };
-        std::swap(temp, arr);
-        delete[] arr;
-        arr = new T[size()]{ };
-        std::swap(temp, arr);
-        delete[] temp;
-        arr[real_size()] = val;
+        rows++; // Increase the number of rows
+
+        T* temp = new T[rows]; // Allocate a new buffer with size rows
+        smartSwap(arr, temp, rows - 1);
+
+        delete[] arr; // Free memory from the old buffer
+        arr = new T[rows]; // Allocate a new buffer with size rows
+        smartSwap(temp, arr, rows - 1);
+
+        delete[] temp; // Free memory from the temporary buffer
+
+        arr[rows - 1] = val; // Add a new element to the vector
     }
 
     template<typename T>
@@ -153,7 +151,7 @@ namespace qts
     {
         rows += 1;
         T* temp = new T[rows];
-        swap(arr, temp, rows, 1);
+        smartSwap(arr, temp, rows, 1);
         temp[0] = val;
         delete[] arr;
         arr = nullptr;
@@ -169,13 +167,13 @@ namespace qts
         arr[index] = val;
     }
 
-    // Функція генерації випадкового числа в заданому діапазоні
+    // Function to generate a random number in a specified range
     template<typename T>
     T FakeVector<T>::randint(T a, T b) const
     {
-        std::random_device rd;   // Недетермінований генератор
-        std::mt19937 gen(rd());  // Ініціалізація Mersenne twister.
-        std::uniform_int_distribution<T> dist(a, b); // Розподіл результатів між a та b включно.
+        std::random_device rd;   // Non-deterministic generator
+        std::mt19937 gen(rd());  // Initialization of Mersenne twister.
+        std::uniform_int_distribution<T> dist(a, b); // Distribution of results between a and b inclusive.
         return dist(gen);
     }
 
@@ -186,7 +184,7 @@ namespace qts
         return result = (index >= 0 && index < rows) ? arr[index] : 0;
     }
 
-    // Перевантажений оператор додавання
+    // Overloaded addition operator
     template<typename T>
     FakeVector<T>& FakeVector<T>::operator+(const FakeVector<T>& other)
     {
@@ -211,7 +209,7 @@ namespace qts
         return result;
     }
 
-    // Перевантажений оператор індексації з обробкою виходу за межі
+    // Overloaded indexing operator with handling out-of-bounds
     template<typename T>
     T& FakeVector<T>::operator[](T index) const
     {
@@ -219,20 +217,20 @@ namespace qts
         {
             return arr[index];
         }
-        // Можна викинути виняток або повернути значення за замовчуванням.
+        // You can throw an exception or return a default value.
         throw std::out_of_range("Index out of bounds");
     }
 
-    // Перевантажений оператор присвоєння
+    // Overloaded assignment operator
     template<typename T>
     FakeVector<T>& FakeVector<T>::operator=(const FakeVector<T>& other)
     {
         rows = other.rows;
-        swap(other.arr, arr, rows);
+        smartSwap(other.arr, arr, rows);
         return *this;
     }
 
-    // Перевантажений оператор складання з присвоєнням
+    // Overloaded addition assignment operator
     template<typename T>
     FakeVector<T>& FakeVector<T>::operator+=(const FakeVector<T>& other)
     {
@@ -244,7 +242,6 @@ namespace qts
 
         rows = rows + other.rows;
 
-
         swap(temp, arr, rows);
 
         delete[] temp;
@@ -253,7 +250,7 @@ namespace qts
         return *this;
     }
 
-    // Перевантажений оператор виводу в потік
+    // Overloaded output operator for streams
     template<typename T>
     std::ostream& operator<<(std::ostream& os, const FakeVector<T>& obj)
     {
@@ -264,24 +261,10 @@ namespace qts
         return os;
     }
 
-    // Функція копіювання з одного масиву в інший
+    // Function to copy from one array to another
     template<typename T>
-    void FakeVector<T>::swap(const T* copyFrom, T* copyIn, 
-                            T copyFrom_EndIndex, T copyFrom_StartIndex)
-    {
-        T j = 0;
-        for (T i = copyFrom_StartIndex; i < copyFrom_EndIndex; i++, j++)
-        {
-            T tmp = copyFrom[j];
-            copyIn[i] = tmp;
-        }
-
-    }
-
-    // Функція копіювання з одного масиву в об'єкт
-    template<typename T>
-    void FakeVector<T>::swap(const T* copyFrom, FakeVector& copyIn, 
-                            T copyFrom_EndIndex, T copyFrom_StartIndex)
+    void FakeVector<T>::smartSwap(const T* copyFrom, T* copyIn,
+        T copyFrom_EndIndex, T copyFrom_StartIndex)
     {
         T j = 0;
         for (T i = copyFrom_StartIndex; i < copyFrom_EndIndex; i++, j++)
@@ -291,9 +274,22 @@ namespace qts
         }
     }
 
-    // Функція копіювання з об'єкта в масив
+    // Function to copy from an array to an object
     template<typename T>
-    void FakeVector<T>::swap(FakeVector<T>& copyFrom, T* copyIn, 
+    void FakeVector<T>::smartSwap(const T* copyFrom, FakeVector& copyIn,
+        T copyFrom_EndIndex, T copyFrom_StartIndex)
+    {
+        T j = 0;
+        for (T i = copyFrom_StartIndex; i < copyFrom_EndIndex; i++, j++)
+        {
+            T tmp = copyFrom[j];
+            copyIn[i] = tmp;
+        }
+    }
+
+    // Function to copy from an object to an array
+    template<typename T>
+    void FakeVector<T>::smartSwap(FakeVector<T>& copyFrom, T* copyIn,
         T copyFrom_EndIndex, T copyFrom_StartIndex)
     {
         T j = 0;
@@ -304,4 +300,3 @@ namespace qts
         }
     }
 }
-
