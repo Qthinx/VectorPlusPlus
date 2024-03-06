@@ -5,7 +5,7 @@
 
 
 namespace qts
-{  
+{
     template<typename T>
     class FakeVector
     {
@@ -135,11 +135,11 @@ namespace qts
         rows++; // Increase the number of rows
 
         T* temp = new T[rows]; // Allocate a new buffer with size rows
-        smartSwap(arr, temp, rows - 1);
+        smartSwap(arr, temp, rows);
 
         delete[] arr; // Free memory from the old buffer
         arr = new T[rows]; // Allocate a new buffer with size rows
-        smartSwap(temp, arr, rows - 1);
+        smartSwap(temp, arr, rows);
 
         delete[] temp; // Free memory from the temporary buffer
 
@@ -149,16 +149,18 @@ namespace qts
     template<typename T>
     void FakeVector<T>::pop_back(T val)
     {
-        rows += 1;
-        T* temp = new T[rows];
+        rows++; // Increase the number of rows
+
+        T* temp = new T[rows]; // Allocate a new buffer with size rows
         smartSwap(arr, temp, rows, 1);
-        temp[0] = val;
-        delete[] arr;
-        arr = nullptr;
-        arr = new T[rows];
-        std::swap(temp, arr);
-        delete[] temp;
-        temp = nullptr;
+
+        delete[] arr; // Free memory from the old buffer
+        arr = new T[rows]; // Allocate a new buffer with size rows
+        smartSwap(temp, arr, rows);
+
+        delete[] temp; // Free memory from the temporary buffer
+
+        arr[0] = val; // Add a new element to the vector
     }
 
     template<typename T>
@@ -191,9 +193,7 @@ namespace qts
         FakeVector <T> result(std::max(rows, other.rows));
 
         for (T i = 0; i < result.size(); i++)
-        {
             result[i] = (i < rows ? arr[i] : 0) + (i < other.rows ? other.arr[i] : 0);
-        }
         return result;
     }
 
@@ -203,9 +203,7 @@ namespace qts
         FakeVector <T> result(std::max(rows, other.rows));
 
         for (T i = 0; i < result.size(); i++)
-        {
             result[i] = (i < rows ? arr[i] : 0) - (i < other.rows ? other.arr[i] : 0);
-        }
         return result;
     }
 
@@ -214,9 +212,7 @@ namespace qts
     T& FakeVector<T>::operator[](T index) const
     {
         if (index >= 0 && index < rows)
-        {
             return arr[index];
-        }
         // You can throw an exception or return a default value.
         throw std::out_of_range("Index out of bounds");
     }
@@ -235,17 +231,16 @@ namespace qts
     FakeVector<T>& FakeVector<T>::operator+=(const FakeVector<T>& other)
     {
         T* temp = new T[rows + other.rows];
-        swap(arr, temp, rows);
-        swap(other.arr, temp, rows + other.rows, rows);
+        smartSwap(arr, temp, rows);
+        smartSwap(other.arr, temp, rows + other.rows, rows);
 
         delete[] arr;
 
         rows = rows + other.rows;
 
-        swap(temp, arr, rows);
+        smartSwap(temp, arr, rows);
 
         delete[] temp;
-        temp = nullptr;
 
         return *this;
     }
@@ -255,9 +250,7 @@ namespace qts
     std::ostream& operator<<(std::ostream& os, const FakeVector<T>& obj)
     {
         for (T i = 0; i < obj.rows; i++)
-        {
             os << obj.arr[i] << " ";
-        }
         return os;
     }
 
