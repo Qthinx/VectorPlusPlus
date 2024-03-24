@@ -127,9 +127,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="BaseUnit.h" />
     <ClInclude Include="FakeVector.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BaseUnit.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
