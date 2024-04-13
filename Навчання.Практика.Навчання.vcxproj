@@ -129,10 +129,12 @@
   <ItemGroup>
     <ClInclude Include="BaseUnit.h" />
     <ClInclude Include="FakeVector.h" />
+    <ClInclude Include="SinglLinkList.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BaseUnit.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="SinglLinkList.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
